@@ -1,11 +1,10 @@
 const puppeteer = require('puppeteer');
 const {google} = require('googleapis');
 const keys = require('./keys.json');
-const { finished } = require('stream');
 
 (async () => {
     try {
-        
+
         // INICIAR O PUPPETEER E ACESSAR O LINKEDIN
         const browser = await puppeteer.launch({headless: false, executablePath: '/usr/bin/chromium-browser'});
         const page = await browser.newPage();
@@ -93,13 +92,6 @@ async function executeScript (page, sheetsData) {
         for (row of sheetsData) {
             if (row[0]){
                 await page.goto(row[0]);
-                let testdata = [
-                    ['First'],
-                    ['Second'],
-                    ['Third'],
-                    ['Fourth'],
-                    ['Last']
-                ]
                 linkedinFinalUrls.push([await page.url()])
             }
         }
