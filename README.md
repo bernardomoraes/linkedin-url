@@ -13,8 +13,8 @@ Note: When you install Puppeteer, it downloads a recent version of Chromium (~17
 
 ## Final Adjustments
 
-### Find the path of Chromium on your computer and change the path in the code.
+Find the variable `executablePath:` and change it to the path of Chromium on your computer.
 
-### Get the file of Keys from Googles Sheets API (or ask me)
+Get the file of Keys from Googles Sheets API (or ask me)
 
-### Change de Range as you wish
+Change the Range as you wish
