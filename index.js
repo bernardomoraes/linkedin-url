@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 const {google} = require('googleapis');
 const keys = require('./keys.json');
+const { finished } = require('stream');
 
 (async () => {
     try {
@@ -28,7 +29,10 @@ const keys = require('./keys.json');
 
         if (isAuthorized) {
             let dataSheets = await getDataFromSheets(client);
-            await executeScript(page, dataSheets)
+            console.log('DataArray: ', dataSheets)
+            let linkedinFinalUrls = await executeScript(page, dataSheets)
+            await updateDataToSheets(client, linkedinFinalUrls)
+            
         }
 
         
@@ -127,6 +131,7 @@ async function login(username, password, page) {
 
     let loginButton = await page.$('button.btn__primary--large');
     await loginButton.click()
+    await page.waitForSelector('.global-nav__logo')
 }
 
 async function getDataFromSheets(client){
@@ -141,18 +146,44 @@ async function getDataFromSheets(client){
     let data = await gsapi.spreadsheets.values.get(opt);
 
     let dataArray = data.data.values;
-    console.log('DataArray: ', dataArray)
+    
     return dataArray
+}
+
+async function updateDataToSheets(client, data) {
+    const gsapi = google.sheets({version:'v4', auth: client})
+
+    const updateOptions = {
+        spreadsheetId: '1H-gjwhdOJ8KEX4HJDHQCv_4BePXEPP-cHubNqaMwR8s',
+        range: 'Data!B1',
+        valueInputOption: 'USER_ENTERED',
+        resource: {
+            values: data
+        }
+    }
+    let response = await gsapi.spreadsheets.values.update(updateOptions);
+    console.log(response.status)
 }
 
 async function executeScript (page, sheetsData) {
     console.log(sheetsData)
     if (sheetsData) {
+        let linkedinFinalUrls = []
         for (row of sheetsData) {
-            await page.goto(row[0]);
-            await page.waitForSelector('.pv-top-card__image')
-            console.log(page.url())
+            if (row[0]){
+                await page.goto(row[0]);
+                let testdata = [
+                    ['First'],
+                    ['Second'],
+                    ['Third'],
+                    ['Fourth'],
+                    ['Last']
+                ]
+                linkedinFinalUrls.push([await page.url()])
+            }
         }
+        console.log(linkedinFinalUrls)
+        return linkedinFinalUrls
     }
 }
 
